@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/aldisaputra17/shoping-cart/entities"
@@ -17,6 +18,7 @@ type ProductService interface {
 	Deleted(ctx context.Context, prod entities.Products) error
 	GetCarts(ctx context.Context) (*[]entities.Products, error)
 	Paginantion(ctx *gin.Context, paginat *entities.Pagination) (helpers.Response, error)
+	IsAllowedToEdit(ctx context.Context, prodID int) bool
 }
 
 type productService struct {
@@ -98,4 +100,11 @@ func (service *productService) Paginantion(ctx *gin.Context, paginat *entities.P
 		data.PreviousPage = ""
 	}
 	return helpers.BuildResponse(true, "Ok", data), nil
+}
+
+func (service *productService) IsAllowedToEdit(ctx context.Context, prodID int) bool {
+	p, _ := service.productRepository.GetProdId(ctx, prodID)
+	id := fmt.Sprintf("%v", p[0].ID)
+	ids, _ := strconv.ParseInt(id, 0, 0)
+	return prodID == int(ids)
 }

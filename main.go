@@ -32,7 +32,7 @@ func main() {
 	{
 		productRoutes.GET("/", productController.GetCarts)
 		productRoutes.POST("/", productController.AddCart)
-		productRoutes.DELETE("/", productController.Deleted)
+		productRoutes.DELETE("/:id", productController.Deleted)
 		productRoutes.GET("/search", productController.Pagination)
 	}
 	r.Run()

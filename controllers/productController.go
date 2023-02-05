@@ -51,9 +51,13 @@ func (c *productController) AddCart(ctx *gin.Context) {
 
 func (c *productController) Deleted(ctx *gin.Context) {
 	var prod entities.Products
-	idpr := ctx.Param("id")
-	id, _ := strconv.ParseInt(idpr, 0, 0)
-	if prod.ID == int(id) {
+	id, err := strconv.ParseInt(ctx.Param("id"), 0, 0)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed tou get id", "No param id were found", helpers.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, response)
+	}
+	prod.ID = int(id)
+	if c.productService.IsAllowedToEdit(ctx, prod.ID) {
 		c.productService.Deleted(ctx, prod)
 		res := helpers.BuildResponse(true, "Deleted", helpers.EmptyObj{})
 		ctx.JSON(http.StatusOK, res)
@@ -61,7 +65,6 @@ func (c *productController) Deleted(ctx *gin.Context) {
 		response := helpers.BuildErrorResponse("Failed deleted cart", "deleted again", helpers.EmptyObj{})
 		ctx.JSON(http.StatusForbidden, response)
 	}
-
 }
 
 func (c *productController) GetCarts(ctx *gin.Context) {
